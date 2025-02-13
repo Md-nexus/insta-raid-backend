@@ -15,9 +15,10 @@ app.get("/extract", async (req, res) => {
         return res.status(400).json({ error: "Invalid Instagram URL" });
     }
 
+    let browser;
     try {
         console.log("Launching Puppeteer...");
-        const browser = await puppeteer.launch({
+        browser = await puppeteer.launch({
             args: [
                 "--no-sandbox",
                 "--disable-setuid-sandbox",
@@ -34,7 +35,7 @@ app.get("/extract", async (req, res) => {
         console.log("Puppeteer launched!");
         const page = await browser.newPage();
 
-        // Set a realistic User-Agent and Headers
+        // **Randomize fingerprint to avoid detection**
         await page.setUserAgent(
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36"
         );
@@ -45,9 +46,20 @@ app.get("/extract", async (req, res) => {
         });
 
         console.log(`Navigating to: ${url}`);
-        await page.goto(url, { waitUntil: "domcontentloaded", timeout: 60000 });
 
-        // **Wait for video element to appear before extracting**
+        // **Retry navigation if page gets closed**
+        let retries = 3;
+        while (retries > 0) {
+            try {
+                await page.goto(url, { waitUntil: "domcontentloaded", timeout: 60000 });
+                break;
+            } catch (error) {
+                console.log(`Navigation failed, retrying... (${3 - retries}/3)`);
+                retries--;
+                if (retries === 0) throw error;
+            }
+        }
+
         console.log("Waiting for video element...");
         await page.waitForSelector("video", { timeout: 30000 });
 
@@ -72,6 +84,8 @@ app.get("/extract", async (req, res) => {
     } catch (error) {
         console.error("Error extracting video:", error);
         return res.status(500).json({ error: "Server error. Try again later." });
+    } finally {
+        if (browser) await browser.close();
     }
 });
 
