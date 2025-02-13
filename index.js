@@ -1,42 +1,54 @@
 const express = require("express");
-const puppeteer = require("puppeteer-core");
-const chromium = require("chrome-aws-lambda");
+const puppeteer = require("puppeteer");
 const cors = require("cors");
 
 const app = express();
 app.use(cors()); // Allow requests from any domain
 
-// Extract Instagram Video URL
 app.get("/extract", async (req, res) => {
     const { url } = req.query;
-    
+
     if (!url || !url.includes("instagram.com")) {
         return res.status(400).json({ error: "Invalid Instagram URL" });
     }
 
     try {
-        // Launch Puppeteer with AWS Lambda-compatible settings
+        console.log("Launching Puppeteer...");
         const browser = await puppeteer.launch({
-            args: chromium.args,
-            executablePath: await chromium.executablePath,
-            headless: chromium.headless
+            args: [
+                "--no-sandbox",
+                "--disable-setuid-sandbox",
+                "--disable-gpu",
+                "--disable-dev-shm-usage",
+                "--disable-software-rasterizer",
+                "--mute-audio",
+                "--no-zygote",
+                "--single-process"
+            ],
+            headless: true // Run in headless mode
         });
 
+        console.log("Puppeteer launched!");
         const page = await browser.newPage();
+        console.log(`Navigating to: ${url}`);
         await page.goto(url, { waitUntil: "networkidle2" });
 
         // Extract the direct video URL
+        console.log("Extracting video URL...");
         const videoUrl = await page.evaluate(() => {
             const videoElement = document.querySelector("video");
             return videoElement ? videoElement.src : null;
         });
 
         await browser.close();
+        console.log("Browser closed.");
 
         if (!videoUrl) {
+            console.log("No video URL found. Possible login requirement.");
             return res.status(404).json({ error: "Could not extract video URL. Login may be required." });
         }
 
+        console.log(`Extracted video URL: ${videoUrl}`);
         return res.json({ videoUrl });
 
     } catch (error) {
@@ -45,6 +57,6 @@ app.get("/extract", async (req, res) => {
     }
 });
 
-// Ensure Railway uses the correct port
+// Use Railway's assigned port
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
