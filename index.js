@@ -1,9 +1,12 @@
 const express = require("express");
-const puppeteer = require("puppeteer");
+const puppeteer = require("puppeteer-extra");
+const StealthPlugin = require("puppeteer-extra-plugin-stealth");
 const cors = require("cors");
 
+puppeteer.use(StealthPlugin());
+
 const app = express();
-app.use(cors()); // Allow requests from any domain
+app.use(cors()); // Allow all origins
 
 app.get("/extract", async (req, res) => {
     const { url } = req.query;
@@ -25,13 +28,24 @@ app.get("/extract", async (req, res) => {
                 "--no-zygote",
                 "--single-process"
             ],
-            headless: true // Run in headless mode
+            headless: "new"
         });
 
         console.log("Puppeteer launched!");
         const page = await browser.newPage();
+
+        // Set a realistic User-Agent and Headers
+        await page.setUserAgent(
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36"
+        );
+
+        await page.setExtraHTTPHeaders({
+            "accept-language": "en-US,en;q=0.9",
+            "sec-fetch-mode": "navigate"
+        });
+
         console.log(`Navigating to: ${url}`);
-        await page.goto(url, { waitUntil: "networkidle2" });
+        await page.goto(url, { waitUntil: "networkidle2", timeout: 60000 });
 
         // Extract the direct video URL
         console.log("Extracting video URL...");
