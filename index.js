@@ -6,7 +6,7 @@ const cors = require("cors");
 puppeteer.use(StealthPlugin());
 
 const app = express();
-app.use(cors()); // Allow all origins
+app.use(cors()); // Allow requests from any domain
 
 app.get("/extract", async (req, res) => {
     const { url } = req.query;
@@ -45,7 +45,11 @@ app.get("/extract", async (req, res) => {
         });
 
         console.log(`Navigating to: ${url}`);
-        await page.goto(url, { waitUntil: "networkidle2", timeout: 60000 });
+        await page.goto(url, { waitUntil: "domcontentloaded", timeout: 60000 });
+
+        // **Wait for video element to appear before extracting**
+        console.log("Waiting for video element...");
+        await page.waitForSelector("video", { timeout: 30000 });
 
         // Extract the direct video URL
         console.log("Extracting video URL...");
