@@ -1,10 +1,10 @@
 {
-"name": "insra-raid-backend",
+"name": "insta-raid-backend",
 "version": "1.0.0",
 "main": "index.js",
 "scripts": {
 "start": "node index.js",
-"postinstall": "curl -sL (link unavailable) -o yt-dlp && chmod +x yt-dlp"
+"postinstall": "curl -sL https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o yt-dlp && chmod +x yt-dlp"
 },
 "test": "echo "Error: no test specified" && exit 1",
 "keywords": [],
