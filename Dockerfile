@@ -1,9 +1,11 @@
 #Use Node.js as base
 FROM node:latest
 
+#Install Python
+RUN apt update && apt install -y python3
+
 #Install yt-dlp
-RUN curl -sS https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o /usr/local/bin/yt-dlp
-RUN chmod a+x /usr/local/bin/yt-dlp
+RUN apt update && apt install -y yt-dlp
 
 #Set working directory
 WORKDIR /app
