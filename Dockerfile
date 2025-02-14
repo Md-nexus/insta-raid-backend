@@ -2,7 +2,9 @@
 FROM node:latest
 
 #Install Python & yt-dlp
-RUN apt update && apt install -y python3 python3-pip yt-dlp
+RUN apt update && apt install -y python3
+RUN curl -sS https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o /usr/local/bin/yt-dlp
+RUN chmod a+x /usr/local/bin/yt-dlp
 
 #Set working directory
 WORKDIR /app
