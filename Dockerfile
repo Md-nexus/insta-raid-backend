@@ -1,14 +1,11 @@
 # Use Node.js as base
 FROM node:latest
 
-# Install Python
-RUN apt update && apt install -y python3
+# Install Python and pip
+RUN apt update && apt install -y python3 python3-pip
 
-# Install pipx
-RUN python3 -m pip install pipx
-
-# Install yt-dlp using pipx
-RUN pipx install yt-dlp
+# Install yt-dlp
+RUN python3 -m pip install yt-dlp
 
 # Set working directory
 WORKDIR /app
