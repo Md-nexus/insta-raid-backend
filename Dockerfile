@@ -1,12 +1,9 @@
 # Use Node.js as the base image
 FROM node:latest
 
-# Install Python, Curl, and FFmpeg (required for yt-dlp)
-RUN apt update && apt install -y python3 curl ffmpeg
-
 # Install yt-dlp directly from binary (avoid pip issues)
-RUN curl -sS https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o /usr/local/bin/yt-dlp && \
-    chmod a+x /usr/local/bin/yt-dlp
+RUN curl -sS https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o /usr/local/bin/yt-dlp && 
+chmod a+x /usr/local/bin/yt-dlp
 
 # Set working directory
 WORKDIR /app
