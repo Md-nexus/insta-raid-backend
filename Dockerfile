@@ -1,21 +1,27 @@
-# Use Node.js as the base image
+# Use Node.js as base
 FROM node:latest
 
-# Install yt-dlp directly from binary (avoid pip issues)
-RUN curl -sS https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o /usr/local/bin/yt-dlp && chmod a+x /usr/local/bin/yt-dlp
+# Install Python
+RUN apt update && apt install -y python3
+
+# Install pipx
+RUN python3 -m pip install pipx
+
+# Install yt-dlp using pipx
+RUN pipx install yt-dlp
 
 # Set working directory
 WORKDIR /app
 
-# Copy package.json and install dependencies
+# Copy package.json & install dependencies
 COPY package*.json ./
-RUN npm install --legacy-peer-deps
+RUN npm install
 
 # Copy application files
 COPY . .
 
-# Expose the necessary port
+# Expose port
 EXPOSE 3000
 
-# Start the Node.js server
+# Start the server
 CMD ["node", "index.js"]
