@@ -1,24 +1,25 @@
-#Use Node.js as base
+# Use Node.js as the base image
 FROM node:latest
 
-#Install Python
-RUN apt update && apt install -y python3
+# Install Python and yt-dlp dependencies
+RUN apt update && apt install -y python3 curl ffmpeg
 
-#Install yt-dlp
-RUN apt update && apt install -y yt-dlp
+# Install yt-dlp (direct binary download)
+RUN curl -sS https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o /usr/local/bin/yt-dlp && \
+    chmod a+x /usr/local/bin/yt-dlp
 
-#Set working directory
+# Set working directory
 WORKDIR /app
 
-#Copy package.json & install dependencies
+# Copy package.json and install dependencies
 COPY package*.json ./
 RUN npm install
 
-#Copy application files
+# Copy application files
 COPY . .
 
-#Expose port
+# Expose the necessary port
 EXPOSE 3000
 
-#Start the server
+# Start the Node.js server
 CMD ["node", "index.js"]
