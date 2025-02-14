@@ -1,23 +1,24 @@
+# Use the latest Node.js image
 FROM node:latest
 
-Install yt-dlp
+# Install yt-dlp
 RUN curl -sL https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o /usr/local/bin/yt-dlp && \
     chmod +x /usr/local/bin/yt-dlp
 
-Set working directory to /app
+# Set working directory to /app
 WORKDIR /app
 
-Copy package*.json
+# Copy package.json and package-lock.json (if available)
 COPY package*.json ./
 
-Install dependencies
+# Install dependencies
 RUN npm install
 
-Copy application code
+# Copy application code
 COPY . .
 
-Expose port
+# Expose port 3000
 EXPOSE 3000
 
-Run command
+# Run command
 CMD ["node", "index.js"]
