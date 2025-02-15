@@ -31,7 +31,8 @@ WORKDIR /app
 # Copy package.json & install dependencies
 COPY package*.json ./
 RUN npm install --omit=dev  # Install only production dependencies
-COPY package*.json ./ RUN npm install
+COPY package*.json ./ 
+RUN npm install
 
 # Copy application files
 COPY . .
