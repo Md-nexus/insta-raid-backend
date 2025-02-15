@@ -7,10 +7,6 @@ app.use(cors());
 
 app.get("/extract", (req, res) => {
     const { url } = req.query;
-<<<<<<< HEAD
-
-=======
->>>>>>> 21418db (Updated backend)
     if (!url || !url.includes("instagram.com")) {
         return res.status(400).json({ error: "Invalid Instagram URL" });
     }
@@ -20,26 +16,11 @@ app.get("/extract", (req, res) => {
     const pythonProcess = spawn("python3", ["extract.py", url]);
 
     let output = "";
-<<<<<<< HEAD
-
-=======
->>>>>>> 21418db (Updated backend)
     pythonProcess.stdout.on("data", (data) => {
         output += data.toString();
     });
 
     pythonProcess.stderr.on("data", (data) => {
-<<<<<<< HEAD
-        console.error("Python Error:", data.toString());
-    });
-
-    pythonProcess.on("close", (code) => {
-        try {
-            const result = JSON.parse(output);
-            res.json(result);
-        } catch (err) {
-            res.status(500).json({ error: "Failed to parse response from Python script." });
-=======
         console.error("Error running Python script:", data.toString());
     });
 
@@ -52,14 +33,9 @@ app.get("/extract", (req, res) => {
             }
         } else {
             res.status(500).json({ error: "Failed to extract video URL." });
->>>>>>> 21418db (Updated backend)
         }
     });
 });
 
 const PORT = process.env.PORT || 3000;
-<<<<<<< HEAD
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-=======
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
->>>>>>> 21418db (Updated backend)
