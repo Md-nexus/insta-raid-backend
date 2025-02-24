@@ -4,10 +4,10 @@ const { spawn, spawnSync } = require("child_process");
 
 const app = express();
 app.use(cors());
-app.use(express.json()); // To parse JSON bodies for POST requests
+app.use(express.json()); // Parse JSON bodies for POST requests
 
 // GET /extract?url=<url>
-// Extract metadata for a single Instagram URL
+// Extract metadata for a single Instagram URL.
 app.get("/extract", (req, res) => {
     const { url } = req.query;
     if (!url || !url.includes("instagram.com")) {
@@ -15,15 +15,18 @@ app.get("/extract", (req, res) => {
     }
 
     console.log(`Extracting metadata from: ${url}`);
+
     const pythonProcess = spawn("python3", ["extract.py", url]);
 
     let output = "";
     pythonProcess.stdout.on("data", (data) => {
         output += data.toString();
     });
+
     pythonProcess.stderr.on("data", (data) => {
         console.error("Error running Python script:", data.toString());
     });
+
     pythonProcess.on("close", (code) => {
         if (code === 0) {
             try {
@@ -44,6 +47,7 @@ app.post("/extract-batch", (req, res) => {
     if (!urls || !Array.isArray(urls)) {
         return res.status(400).json({ error: "Invalid request: 'urls' must be an array." });
     }
+
     // Filter for valid Instagram URLs
     const instagramUrls = urls.filter(u => u && u.includes("instagram.com"));
     if (instagramUrls.length === 0) {
@@ -52,7 +56,7 @@ app.post("/extract-batch", (req, res) => {
 
     let results = [];
     for (let url of instagramUrls) {
-        // Use spawnSync to process each URL sequentially.
+        // Process each URL synchronously
         const pythonProcess = spawnSync("python3", ["extract.py", url], { encoding: "utf-8" });
         if (pythonProcess.error) {
             results.push({ url, error: pythonProcess.error.message });

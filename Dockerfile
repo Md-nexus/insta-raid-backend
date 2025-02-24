@@ -1,11 +1,11 @@
 # Use a specific stable Node.js version
 FROM node:18-bullseye
 
-# Install Python, pip, and yt-dlp in one command to reduce layers
+# Install Python, pip, and create a virtual environment, then install yt-dlp
 RUN apt update && apt install -y python3 python3-pip python3-venv && \
     python3 -m venv /env && \
-    /env/bin/pip install yt-dlp && \
-    rm -rf /var/lib/apt/lists/*  # Clean up unused files to reduce image size
+    /env/bin/pip install --upgrade yt-dlp && \
+    rm -rf /var/lib/apt/lists/*
 
 # Set environment variable for virtual environment
 ENV PATH="/env/bin:$PATH"
@@ -13,14 +13,14 @@ ENV PATH="/env/bin:$PATH"
 # Set working directory
 WORKDIR /app
 
-# Copy package.json & install dependencies
+# Copy package.json & package-lock.json and install dependencies
 COPY package*.json ./
-RUN npm install --omit=dev  # Install only production dependencies
+RUN npm install --omit=dev
 
-# Copy application files
+# Copy the rest of the application files
 COPY . .
 
-# Expose port
+# Expose port 3000
 EXPOSE 3000
 
 # Start the server
